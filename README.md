@@ -34,3 +34,6 @@ make lint    # go vet и проверка типов TypeScript
 - `frontend/src/bpmn` — редактор BPMN: moddle-дескриптор `gobpm:*`, ограничения палитры и меню замены.
 - `frontend/src/dmn` — редактор DMN.
 - Последняя рабочая папка хранится в `<UserConfigDir>/go-bpm-modeler/settings.json`.
+- Иконка: исходник `build/appicon.svg`, PNG 1024×1024 — `build/appicon.png`. `wails build` делает из PNG иконки для
+  Windows и macOS, в Linux PNG встраивается в бинарник как иконка окна. После правки SVG:
+  `rsvg-convert -w 1024 -h 1024 build/appicon.svg -o build/appicon.png`.

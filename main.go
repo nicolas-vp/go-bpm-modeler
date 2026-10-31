@@ -9,10 +9,16 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/menu"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
+// icon - иконка окна в Linux; для Windows и macOS wails build берёт ту же build/appicon.png сам
+//
+//go:embed build/appicon.png
+var icon []byte
 
 func main() {
 	app := NewApp()
@@ -35,6 +41,11 @@ func main() {
 		OnStartup:     app.startup,
 		OnBeforeClose: app.beforeClose,
 		Bind:          []any{app},
+		Linux: &linux.Options{
+			Icon: icon,
+			// WM_CLASS: по нему окружение рабочего стола связывает окно с ярлыком .desktop
+			ProgramName: "go-bpm-modeler",
+		},
 	})
 	if err != nil {
 		log.Fatal(err)

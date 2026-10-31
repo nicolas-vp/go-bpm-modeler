@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Исходник иконки приложения; build/appicon.png рендерится из него (см. README) -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6" />
+      <stop offset="1" stop-color="#1e40af" />
+    </linearGradient>
+  </defs>
+  <!-- Поля 100 px: сетка иконок macOS -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)" />
+  <g fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <!-- start event -->
+    <circle cx="232" cy="512" r="60" />
+    <!-- task -->
+    <rect x="378" y="437" width="214" height="150" rx="34" fill="#ffffff" />
+    <!-- exclusive gateway -->
+    <path d="M788 422 L878 512 L788 602 L698 512 Z" />
+    <!-- sequence flows -->
+    <path d="M292 512 H340" />
+    <path d="M592 512 H660" />
+  </g>
+  <g fill="#ffffff">
+    <path d="M378 512 L336 484 V540 Z" />
+    <path d="M698 512 L656 484 V540 Z" />
+  </g>
+</svg>
