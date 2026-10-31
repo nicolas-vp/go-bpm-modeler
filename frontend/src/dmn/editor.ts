@@ -1,6 +1,7 @@
 import DmnModeler from 'dmn-js/lib/Modeler';
 
 import { Editor, Services, warningMessages } from '../editor';
+import translate from '../translate';
 
 export class DmnEditor implements Editor {
   readonly element: HTMLElement;
@@ -12,7 +13,9 @@ export class DmnEditor implements Editor {
   constructor() {
     this.element = document.createElement('div');
     this.element.className = 'editor editor-dmn';
-    this.modeler = new DmnModeler({ container: this.element });
+    // Модули - в каждое представление: additionalModules из common dmn-js затирает своим списком
+    const view = { additionalModules: [translate] };
+    this.modeler = new DmnModeler({ container: this.element, drd: view, decisionTable: view, literalExpression: view });
 
     // У dmn-js у каждого представления свой commandStack: подписываемся на каждое при первом показе
     this.modeler.on('views.changed', () => this.watchActiveViewer());

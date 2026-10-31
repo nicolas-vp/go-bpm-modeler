@@ -7,7 +7,7 @@ import gobpm from './gobpm.json';
 import linting, { lintOptions } from './lint';
 import properties from './properties';
 import restrictions from './restrictions';
-import translate from './translate';
+import translate from '../translate';
 
 export class BpmnEditor implements Editor {
   readonly element: HTMLElement;

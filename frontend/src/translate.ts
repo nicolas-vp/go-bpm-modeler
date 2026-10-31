@@ -1,4 +1,4 @@
-// Русские строки bpmn-js и стандартной панели свойств. Чего нет в словаре - остаётся по-английски
+// Русские строки bpmn-js, его панели свойств и dmn-js. Чего нет в словаре - остаётся по-английски
 
 const RU: Record<string, string> = {
   // панель свойств
@@ -83,6 +83,50 @@ const RU: Record<string, string> = {
   'Sequence flow': 'Переход',
   'Default flow': 'Переход по умолчанию',
   'Sequential multi-instance': 'Последовательный multi-instance',
+
+  // dmn-js: DRD и таблица решений
+  'View DRD': 'К схеме DRD',
+  'Hit policy': 'Hit policy',
+  'Hit policy:': 'Hit policy:',
+  When: 'Если',
+  And: 'И',
+  Then: 'То',
+  Annotations: 'Примечания',
+  Annotation: 'Примечание',
+  'Create decision': 'Решение',
+  'Add rule': 'Добавить правило',
+  'Add rule above': 'Добавить правило выше',
+  'Add rule below': 'Добавить правило ниже',
+  'Remove rule': 'Удалить правило',
+  'Copy rule': 'Копировать правило',
+  'Cut rule': 'Вырезать правило',
+  'Paste rule above': 'Вставить правило выше',
+  'Paste rule below': 'Вставить правило ниже',
+  'Add input': 'Добавить вход',
+  'Add output': 'Добавить выход',
+  'Add input column left': 'Добавить вход слева',
+  'Add input column right': 'Добавить вход справа',
+  'Add output column left': 'Добавить выход слева',
+  'Add output column right': 'Добавить выход справа',
+  'Remove input column': 'Удалить вход',
+  'Remove output column': 'Удалить выход',
+  'Add cell description': 'Добавить описание ячейки',
+  'Remove cell description': 'Удалить описание ячейки',
+  'Input label': 'Подпись входа',
+  'Input expression': 'Выражение входа',
+  'Input type': 'Тип входа',
+  'Output label': 'Подпись выхода',
+  'Output name': 'Имя выхода',
+  'Output type': 'Тип выхода',
+  Type: 'Тип',
+  Value: 'Значение',
+  Values: 'Значения',
+  Expression: 'Выражение',
+  'Enter expression': 'Введите выражение',
+  Edit: 'Изменить',
+  Yes: 'Да',
+  No: 'Нет',
+  'Strings must be in double quotes': 'Строки - в двойных кавычках',
 };
 
 function translate(template: string, replacements: Record<string, string> = {}): string {

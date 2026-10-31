@@ -72,7 +72,8 @@ export async function open({ dist, files, index, viewport = { width: 1400, heigh
     async select(id) {
       const { x, y } = blank();
       await page.mouse.click(x, y);
-      await page.locator(`.djs-element[data-element-id="${id}"] .djs-hit`).first().click({ force: true });
+      // Только видимая вкладка: в разных вкладках id элементов могут совпадать
+      await page.locator(`.editor:not([hidden]) .djs-element[data-element-id="${id}"] .djs-hit`).first().click({ force: true });
       await page.waitForTimeout(150);
     },
 
@@ -81,7 +82,7 @@ export async function open({ dist, files, index, viewport = { width: 1400, heigh
       const { x, y } = blank();
       await page.mouse.click(x, y);
       const point = await page.evaluate((id) => {
-        const line = document.querySelector(`.djs-element[data-element-id="${id}"] .djs-visual > path`);
+        const line = document.querySelector(`.editor:not([hidden]) .djs-element[data-element-id="${id}"] .djs-visual > path`);
         const p = line.getPointAtLength(line.getTotalLength() * 0.75);
         const m = line.getScreenCTM();
         return { x: p.x * m.a + m.e, y: p.y * m.d + m.f };
