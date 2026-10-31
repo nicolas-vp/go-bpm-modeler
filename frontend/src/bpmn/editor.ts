@@ -2,8 +2,11 @@ import BpmnModeler from 'bpmn-js/lib/Modeler';
 import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js-properties-panel';
 
 import { Editor, Services, warningMessages } from '../editor';
+import aiTask from './aiTask';
 import gobpm from './gobpm.json';
+import properties from './properties';
 import restrictions from './restrictions';
+import translate from './translate';
 
 export class BpmnEditor implements Editor {
   readonly element: HTMLElement;
@@ -15,14 +18,21 @@ export class BpmnEditor implements Editor {
 
     const canvas = document.createElement('div');
     canvas.className = 'editor-canvas';
-    const properties = document.createElement('div');
-    properties.className = 'editor-properties';
-    this.element.append(canvas, properties);
+    const panel = document.createElement('div');
+    panel.className = 'editor-properties';
+    this.element.append(canvas, panel);
 
     const options: any = {
       container: canvas,
-      propertiesPanel: { parent: properties },
-      additionalModules: [BpmnPropertiesPanelModule, BpmnPropertiesProviderModule, restrictions],
+      propertiesPanel: { parent: panel },
+      additionalModules: [
+        BpmnPropertiesPanelModule,
+        BpmnPropertiesProviderModule,
+        properties,
+        restrictions,
+        aiTask,
+        translate,
+      ],
       moddleExtensions: { gobpm },
     };
     this.modeler = new BpmnModeler(options);

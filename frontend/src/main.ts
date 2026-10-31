@@ -18,6 +18,7 @@ import { Editor } from './editor';
 import { initSidebarResizer } from './resizer';
 import { newBpmn, newDmn } from './templates';
 import { Toolbar } from './toolbar';
+import { refreshWorkspaceIndex } from './workspaceIndex';
 
 interface Tab {
   path: string;
@@ -68,7 +69,7 @@ async function showWorkspace(): Promise<void> {
 }
 
 async function refreshFiles(): Promise<void> {
-  const files = await backend.listFiles();
+  const [files] = await Promise.all([backend.listFiles(), refreshWorkspaceIndex()]);
   el.fileList.replaceChildren(...files.map(fileItem));
 }
 
@@ -251,6 +252,8 @@ async function saveActive(): Promise<void> {
   await backend.writeFile(tab.path, xml);
   setDirty(tab, false);
   status(`Сохранён ${tab.path}`);
+  // Могли измениться id процессов и решений - варианты для call activity и business rule task
+  await refreshWorkspaceIndex();
 }
 
 // --- запуск ---

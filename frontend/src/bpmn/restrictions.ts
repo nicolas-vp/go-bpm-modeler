@@ -6,6 +6,13 @@ type Entries = Record<string, any>;
 /** Пункты палитры bpmn-js, которых нет в go-bpm */
 const HIDDEN_PALETTE = new Set(['create.data-object', 'create.data-store']);
 
+/** Типы задач в палитре после обычной задачи: тип, класс иконки bpmn-font, подсказка */
+const TASK_ENTRIES: Array<[string, string, string]> = [
+  ['bpmn:ServiceTask', 'bpmn-icon-service-task', 'Создать сервисную задачу'],
+  ['bpmn:ScriptTask', 'bpmn-icon-script-task', 'Создать скриптовую задачу'],
+  ['bpmn:UserTask', 'bpmn-icon-user-task', 'Создать пользовательскую задачу'],
+];
+
 /** Пункты меню замены (replace-with-*) и переключатели (toggle-*), которые остаются */
 const ALLOWED_REPLACE = new Set([
   'replace-with-none-start',
@@ -76,9 +83,20 @@ class PaletteRestrictions {
           continue;
         }
         result[id] = entry;
+        // Частые типы задач - сразу после обычной, без меню замены
+        if (id === 'create.task') {
+          for (const [type, className, title] of TASK_ENTRIES) {
+            result[`create.${className.replace('bpmn-icon-', '')}`] = this.shapeEntry(type, className, title);
+          }
+        }
       }
       return result;
     };
+  }
+
+  private shapeEntry(type: string, className: string, title: string) {
+    const start = (event: Event) => this.create.start(event, this.elementFactory.createShape({ type }));
+    return { group: 'activity', className, title: this.translate(title), action: { dragstart: start, click: start } };
   }
 
   private catchEvent(eventDefinitionType: string, className: string, title: string) {
