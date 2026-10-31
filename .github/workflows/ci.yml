@@ -20,13 +20,13 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -72,13 +72,13 @@ jobs:
             platform: darwin/arm64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -110,11 +110,49 @@ jobs:
           esac
           ls -la dist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: go-bpm-modeler-${{ matrix.name }}
           path: dist/*
           if-no-files-found: error
+
+  # Публикация на https://go-bpm.tech/modeler/: push в main - канал dev, тег v* - релиз (канал latest).
+  # Секреты: DEPLOY_HOST, DEPLOY_SSH_KEY (ключ, которому на сервере разрешён только /opt/go-bpm-modeler/publish.sh,
+  # копия deploy/publish.sh), DEPLOY_KNOWN_HOSTS
+  publish:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    needs: build
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Публикация
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            args="release $GITHUB_REF_NAME $GITHUB_SHA"
+          else
+            args="dev ${GITHUB_SHA::7} $GITHUB_SHA"
+          fi
+          ls -la dist
+          tar -cf - -C dist . | ssh -o BatchMode=yes "root@$DEPLOY_HOST" "$args"
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -123,12 +161,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: dist/*
           generate_release_notes: true

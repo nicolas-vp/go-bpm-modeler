@@ -29,6 +29,12 @@ const RU: Record<string, string> = {
   'Multiple elements are selected. Select a single element to edit its properties.':
     'Выбрано несколько элементов. Выберите один, чтобы изменить свойства.',
 
+  // линтер
+  '{errors} Errors, {warnings} Warnings': 'Ошибок: {errors}, предупреждений: {warnings}',
+  'No Issues': 'Проблем нет',
+  'Issues for child elements': 'Проблемы вложенных элементов',
+  'Toggle linting overlays': 'Показать или скрыть проблемы',
+
   // палитра
   'Activate hand tool': 'Перемещение холста',
   'Activate lasso tool': 'Выделение лассо',

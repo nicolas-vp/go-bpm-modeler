@@ -22,3 +22,8 @@ declare module '@bpmn-io/properties-panel' {
   export function isSelectEntryEdited(node: any): boolean;
   export function isCheckboxEntryEdited(node: any): boolean;
 }
+
+declare module 'bpmn-js-bpmnlint' {
+  const LintingModule: any;
+  export default LintingModule;
+}

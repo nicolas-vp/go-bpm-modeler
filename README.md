@@ -37,11 +37,18 @@ make lint       # go vet и проверка типов TypeScript
 Silicon (обе macOS - на arm64-раннере). Бинарники - артефакты прогона; тег `v*` создаёт релиз с ними. Бинарники
 не подписаны: macOS и Windows предупредят при первом запуске.
 
+Сборки публикуются на <https://go-bpm.tech/modeler/> (job `publish`): push в main — канал dev, тег `v*` — релиз,
+канал latest. CI отправляет архивы по SSH в `deploy/publish.sh` на сервере (forced command ключа CI), скрипт
+кладёт их в `/var/www/go-bpm-downloads/modeler` и обновляет `index.json`, который читает страница сайта.
+Секреты: `DEPLOY_HOST`, `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`. После правки `deploy/publish.sh` — скопировать его на
+сервер в `/opt/go-bpm-modeler/publish.sh`.
+
 ## Устройство
 
 - `app.go` — методы для фронтенда: рабочая папка, список, чтение и запись файлов, индекс id процессов и решений.
 - `internal/workspace` — работа с файлами; пути не выходят за рабочую папку, запись атомарная.
-- `frontend/src/bpmn` — редактор BPMN: moddle-дескриптор `gobpm:*`, ограничения палитры и меню замены.
+- `frontend/src/bpmn` — редактор BPMN: moddle-дескриптор `gobpm:*`, ограничения палитры и меню замены, панель
+  свойств (`properties/`), линтер (`lint/`), AI task.
 - `frontend/src/dmn` — редактор DMN.
 - Последняя рабочая папка хранится в `<UserConfigDir>/go-bpm-modeler/settings.json`.
 - Иконка: исходник `build/appicon.svg`, PNG 1024×1024 — `build/appicon.png`. `wails build` делает из PNG иконки для
