@@ -169,11 +169,12 @@ export const singleStartEvent: Rule = () => ({
 
 // --- граничные события ---
 
-const TIMER_TARGETS = ['bpmn:Task', 'bpmn:ScriptTask', 'bpmn:ServiceTask', 'bpmn:UserTask'];
-const ERROR_TARGETS = ['bpmn:Task', 'bpmn:ScriptTask', 'bpmn:ServiceTask'];
+// Куда go-bpm разрешает граничные события; их же проверяют правила рисования (../modelingRules.ts)
+export const TIMER_TARGETS = ['bpmn:Task', 'bpmn:ScriptTask', 'bpmn:ServiceTask', 'bpmn:UserTask'];
+export const ERROR_TARGETS = ['bpmn:Task', 'bpmn:ScriptTask', 'bpmn:ServiceTask'];
 
 /** Точный тип элемента: is() считает ServiceTask и UserTask подтипами Task */
-const exactly = (node: Node, types: string[]) => types.includes(node?.$type);
+export const exactly = (node: Node, types: string[]) => types.includes(node?.$type);
 
 export const boundaryEvents: Rule = () => ({
   check(node, reporter) {
@@ -201,7 +202,7 @@ export const boundaryEvents: Rule = () => ({
 // --- переходы и ветвления ---
 
 // Несколько исходящих без условий - разветвление во все ветки
-const FORKS = ['bpmn:ParallelGateway', 'bpmn:SubProcess', 'bpmn:CallActivity'];
+export const FORKS = ['bpmn:ParallelGateway', 'bpmn:SubProcess', 'bpmn:CallActivity'];
 
 /**
  * Исходящие переходы по sourceRef. <bpmn:outgoing> у узла необязательны (BPMN, написанный руками), генератор тоже

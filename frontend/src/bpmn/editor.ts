@@ -5,6 +5,7 @@ import { Editor, Services, warningMessages } from '../editor';
 import aiTask from './aiTask';
 import gobpm from './gobpm.json';
 import linting, { lintOptions } from './lint';
+import modelingRules from './modelingRules';
 import properties from './properties';
 import restrictions from './restrictions';
 import translate from '../translate';
@@ -31,6 +32,7 @@ export class BpmnEditor implements Editor {
         BpmnPropertiesProviderModule,
         properties,
         restrictions,
+        modelingRules,
         aiTask,
         linting,
         translate,

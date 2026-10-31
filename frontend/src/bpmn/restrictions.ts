@@ -1,6 +1,10 @@
 // Ограничения bpmn-js под go-bpm: палитра и меню замены показывают только то, что поддерживает генератор.
 // Список - docs/supported-elements.md
 
+import { is } from 'bpmn-js/lib/util/ModelUtil';
+
+import { boundaryAllowed } from './modelingRules';
+
 type Entries = Record<string, any>;
 
 /** Пункты палитры bpmn-js, которых нет в go-bpm */
@@ -115,8 +119,25 @@ class ReplaceMenuRestrictions {
     popupMenu.registerProvider('bpmn-replace', 500, this);
   }
 
-  getPopupMenuEntries() {
-    return filterReplace;
+  getPopupMenuEntries(target: any) {
+    return (entries: Entries): Entries => {
+      const result = filterReplace(entries);
+      const drop = (id: string) => delete result[id];
+      // Граничное событие: только типы, которые go-bpm поддерживает у этого элемента
+      if (is(target, 'bpmn:BoundaryEvent') && target.host) {
+        if (!boundaryAllowed('timer', target.host)) {
+          drop('replace-with-timer-boundary');
+        }
+        if (!boundaryAllowed('error', target.host)) {
+          drop('replace-with-error-boundary');
+        }
+      }
+      // Подпроцесс внутри подпроцесса не поддерживается
+      if (is(target.parent, 'bpmn:SubProcess')) {
+        drop('replace-with-expanded-subprocess');
+      }
+      return result;
+    };
   }
 
   getPopupMenuHeaderEntries() {
