@@ -308,6 +308,77 @@ body.resizing {
   overflow-y: auto;
 }
 
+/* Выпадающие списки dmn-js (hit policy, типы): dmn-js ставит им inline ширину поля, и длинные подписи
+   («Priority — не поддерживается go-bpm») переносятся. Ширина - по самой длинной подписи, без переноса */
+.dms-select-options {
+  width: max-content !important;
+  min-width: 140px;
+  max-width: min(520px, 90vw);
+}
+.dms-select-options .option {
+  white-space: nowrap;
+}
+
+/* Линтер DMN: счётчик внизу редактора, список проблем над ним, подсветка ячеек и маркеры решений */
+.dmn-lint-button {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  z-index: 20;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+}
+.dmn-lint-button[data-state='ok'] { background: #2f8a4c; }
+.dmn-lint-button[data-state='warn'] { background: #c07a10; }
+.dmn-lint-button[data-state='error'] { background: var(--error); }
+.dmn-lint-list {
+  position: absolute;
+  left: 50%;
+  bottom: 56px;
+  z-index: 20;
+  transform: translateX(-50%);
+  width: min(640px, 90%);
+  max-height: 40%;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
+}
+.dmn-lint-item {
+  padding: 6px 10px 6px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+}
+.dmn-lint-item:hover { background: var(--bg-hover); }
+.dmn-lint-item::before { position: absolute; left: 10px; font-weight: 700; }
+.dmn-lint-error::before { content: '✕'; color: var(--error); }
+.dmn-lint-warn::before { content: '!'; color: #c07a10; }
+.gobpm-dmn-error { box-shadow: inset 0 0 0 2px var(--error) !important; background: #fdecea !important; }
+.gobpm-dmn-warn { box-shadow: inset 0 0 0 2px #c07a10 !important; background: #fdf3e1 !important; }
+.gobpm-dmn-marker {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: help;
+}
+.gobpm-dmn-marker-error { background: var(--error); }
+.gobpm-dmn-marker-warn { background: #c07a10; }
+
 /* Тип Input Data под элементом DRD. Нативный select в WebKitGTK получает отступы темы GTK и обрезает текст,
    поэтому рисуем его сами: компактно и одинаково во всех WebView */
 .djs-overlay .dms-type-ref-select.dms-select {

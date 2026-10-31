@@ -127,6 +127,9 @@ const RU: Record<string, string> = {
   Yes: 'Да',
   No: 'Нет',
   'Strings must be in double quotes': 'Строки - в двойных кавычках',
+  // hit policy, которых нет в go-bpm (dmn/restrictions.ts)
+  Priority: 'Priority — не поддерживается go-bpm',
+  'Output order': 'Output order — не поддерживается go-bpm',
 };
 
 function translate(template: string, replacements: Record<string, string> = {}): string {
