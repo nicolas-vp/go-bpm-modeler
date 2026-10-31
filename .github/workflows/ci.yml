@@ -1,4 +1,4 @@
-# Тесты и сборка под Linux, Windows, macOS Intel и Apple Silicon. На тег v* - релиз с бинарниками
+# Тесты и сборка под Linux x86-64 и ARM64, Windows, macOS Intel и Apple Silicon. На тег v* - релиз с бинарниками
 name: ci
 
 on:
@@ -59,6 +59,11 @@ jobs:
           - name: linux-amd64
             os: ubuntu-24.04
             platform: linux/amd64
+            flags: -tags webkit2_41
+          # Нативная сборка на ARM-раннере GitHub (бесплатен для публичных репозиториев)
+          - name: linux-arm64
+            os: ubuntu-24.04-arm
+            platform: linux/arm64
             flags: -tags webkit2_41
           - name: windows-amd64
             os: windows-latest

@@ -33,8 +33,8 @@ make lint       # go vet и проверка типов TypeScript
 
 ## CI
 
-`.github/workflows/ci.yml`: тесты и линтеры, затем сборка под Linux amd64, Windows amd64, macOS Intel и Apple
-Silicon (обе macOS - на arm64-раннере). Бинарники - артефакты прогона; тег `v*` создаёт релиз с ними. Бинарники
+`.github/workflows/ci.yml`: тесты и линтеры, затем сборка под Linux amd64 и arm64 (arm64 — на ARM-раннере GitHub),
+Windows amd64, macOS Intel и Apple Silicon (обе macOS - на arm64-раннере). Бинарники - артефакты прогона; тег `v*` создаёт релиз с ними. Бинарники
 не подписаны: macOS и Windows предупредят при первом запуске.
 
 Сборки публикуются на <https://go-bpm.tech/modeler/> (job `publish`): push в main — канал dev, тег `v*` — релиз,

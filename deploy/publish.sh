@@ -7,7 +7,7 @@
 # Аргумент (SSH_ORIGINAL_COMMAND) - "<канал> <версия> <коммит>":
 #	dev <7 знаков коммита> <коммит>   - сборка main, становится каналом dev
 #	release <vX.Y.Z> <коммит>         - релиз по тегу, становится каналом latest
-# stdin - tar ровно с четырьмя архивами сборок (имена - PLATFORMS ниже).
+# stdin - tar ровно с архивами сборок всех платформ (имена - PLATFORMS ниже).
 #
 # Раскладка в /var/www/go-bpm-downloads/modeler (nginx: https://go-bpm.tech/downloads/modeler/):
 #	builds/<сборка>/  архивы, SHA256SUMS, manifest.json; сборка - dev-<коммит> или vX.Y.Z
@@ -24,12 +24,13 @@ KEEP_RELEASE=10
 # платформа сборки -> подпись
 declare -A PLATFORMS=(
 	[linux-amd64]="Linux x86-64"
+	[linux-arm64]="Linux ARM64"
 	[windows-amd64]="Windows x86-64"
 	[darwin-amd64]="macOS Intel"
 	[darwin-arm64]="macOS Apple Silicon"
 )
 # порядок на странице загрузок
-ORDER=(linux-amd64 windows-amd64 darwin-arm64 darwin-amd64)
+ORDER=(linux-amd64 linux-arm64 windows-amd64 darwin-arm64 darwin-amd64)
 archive() {
 	case $1 in
 	linux-*) echo "go-bpm-modeler-$1.tar.gz" ;;
@@ -64,7 +65,7 @@ flock 9
 tmp=$(mktemp -d "$ROOT/builds/.incoming.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT
 
-# не больше 300 МБ: четыре архива весят около 20 МБ
+# не больше 300 МБ: архивы всех платформ весят около 25 МБ
 head -c 300000000 | tar -x -C "$tmp" --no-same-owner --no-same-permissions
 
 if find "$tmp" -mindepth 1 ! -type f | grep -q .; then
