@@ -1,0 +1,84 @@
+{
+  "name": "go-bpm",
+  "prefix": "gobpm",
+  "uri": "https://github.com/nicolas-vp/go-bpm/schema/1.0",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "associations": [],
+  "types": [
+    {
+      "name": "TaskDefinition",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:ServiceTask"] },
+      "properties": [
+        { "name": "type", "type": "String", "isAttr": true },
+        { "name": "retries", "type": "Integer", "isAttr": true }
+      ]
+    },
+    {
+      "name": "Script",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:ScriptTask"] },
+      "properties": [
+        { "name": "expression", "type": "String", "isAttr": true },
+        { "name": "resultVariable", "type": "String", "isAttr": true }
+      ]
+    },
+    {
+      "name": "CalledDecision",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:BusinessRuleTask"] },
+      "properties": [
+        { "name": "decisionId", "type": "String", "isAttr": true },
+        { "name": "resultVariable", "type": "String", "isAttr": true }
+      ]
+    },
+    {
+      "name": "CalledElement",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:CallActivity"] },
+      "properties": [
+        { "name": "processId", "type": "String", "isAttr": true },
+        { "name": "propagateAllChildVariables", "type": "Boolean", "isAttr": true, "default": true }
+      ]
+    },
+    {
+      "name": "AssignmentDefinition",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:UserTask"] },
+      "properties": [
+        { "name": "assignee", "type": "String", "isAttr": true },
+        { "name": "candidateUsers", "type": "String", "isAttr": true },
+        { "name": "candidateGroups", "type": "String", "isAttr": true }
+      ]
+    },
+    {
+      "name": "FormDefinition",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:UserTask"] },
+      "properties": [
+        { "name": "formKey", "type": "String", "isAttr": true }
+      ]
+    },
+    {
+      "name": "Subscription",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:Message"] },
+      "properties": [
+        { "name": "correlationKey", "type": "String", "isAttr": true }
+      ]
+    },
+    {
+      "name": "AiTask",
+      "superClass": ["Element"],
+      "meta": { "allowedIn": ["bpmn:ServiceTask"] },
+      "properties": [
+        { "name": "model", "type": "String", "isAttr": true },
+        { "name": "systemPrompt", "type": "String", "isAttr": true },
+        { "name": "prompt", "type": "String", "isAttr": true },
+        { "name": "resultVariable", "type": "String", "isAttr": true }
+      ]
+    }
+  ]
+}

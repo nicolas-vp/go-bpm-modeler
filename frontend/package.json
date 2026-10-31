@@ -1,0 +1,22 @@
+{
+  "name": "go-bpm-modeler-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bpmn-io/properties-panel": "^3.25.0",
+    "bpmn-js": "^18.3.0",
+    "bpmn-js-properties-panel": "^5.31.0",
+    "dmn-js": "^17.0.0",
+    "lucide": "1.66.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}
