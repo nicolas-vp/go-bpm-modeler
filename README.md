@@ -19,13 +19,23 @@
 ## Команды
 
 ```sh
-make dev     # приложение с горячей перезагрузкой фронтенда
-make build   # бинарник в build/bin/
-make test    # тесты Go
-make lint    # go vet и проверка типов TypeScript
+make dev        # приложение с горячей перезагрузкой фронтенда
+make build      # бинарник в build/bin/
+make e2e-setup  # один раз: Chromium для браузерных тестов
+make test       # тесты Go и браузерные тесты фронтенда
+make lint       # go vet и проверка типов TypeScript
 ```
 
+Браузерные тесты (`frontend/e2e`) открывают собранный фронтенд в Chromium через Playwright; Go-бэкенд Wails
+подменён заглушкой в памяти (`e2e/harness.mjs`). Один файл: `cd frontend && node e2e/run.mjs dist properties`.
+
 На Linux Makefile добавляет тег `webkit2_41`: свежие дистрибутивы поставляют только webkit2gtk-4.1.
+
+## CI
+
+`.github/workflows/ci.yml`: тесты и линтеры, затем сборка под Linux amd64, Windows amd64, macOS Intel и Apple
+Silicon (обе macOS - на arm64-раннере). Бинарники - артефакты прогона; тег `v*` создаёт релиз с ними. Бинарники
+не подписаны: macOS и Windows предупредят при первом запуске.
 
 ## Устройство
 
