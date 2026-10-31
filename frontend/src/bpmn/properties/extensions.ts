@@ -26,7 +26,7 @@ function isEmpty(value: unknown): boolean {
 }
 
 /** Явно заданные атрибуты расширения */
-function ownAttrs(extension: Moddle): Record<string, unknown> {
+export function ownAttrs(extension: Moddle): Record<string, unknown> {
   const attrs: Record<string, unknown> = {};
   for (const property of extension.$descriptor.properties) {
     if (Object.prototype.hasOwnProperty.call(extension, property.name)) {

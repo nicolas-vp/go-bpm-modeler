@@ -19,6 +19,23 @@ export interface Editor {
   /** Вызывается, когда сменилось активное представление и services() возвращает другие сервисы */
   onViewChange(listener: () => void): void;
   destroy(): void;
+
+  // Для AI-агента (MCP, см. mcp.ts)
+
+  /** Схема в виде списка: элементы, их настройки go-bpm, переходы, таблицы решений */
+  describe(): unknown;
+  /** Проблемы линтера */
+  problems(): Problem[];
+  /** То, что выделил пользователь, - в том же виде, что describe */
+  selection(): unknown[];
+  /** Заменяет схему новым XML с проверкой: при ошибке разбора схема в редакторе не меняется */
+  replace(xml: string): Promise<string[]>;
+}
+
+export interface Problem {
+  id: string;
+  level: 'error' | 'warn';
+  message: string;
 }
 
 export function warningMessages(warnings: Array<{ message?: string }> | undefined): string[] {

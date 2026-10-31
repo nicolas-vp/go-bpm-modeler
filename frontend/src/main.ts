@@ -18,6 +18,8 @@ import { DmnEditor } from './dmn/editor';
 import { Editor } from './editor';
 import { initSidebarResizer } from './resizer';
 import { newBpmn, newDmn } from './templates';
+import { initMcpBridge } from './mcp';
+import { McpPanel } from './mcpPanel';
 import { Toolbar } from './toolbar';
 import { refreshWorkspaceIndex } from './workspaceIndex';
 
@@ -144,11 +146,11 @@ function askNewFile(kind: Kind): void {
 
 // --- вкладки ---
 
-async function openFile(path: string): Promise<void> {
+async function openFile(path: string): Promise<Tab> {
   const opened = tabs.get(path);
   if (opened) {
     activate(opened);
-    return;
+    return opened;
   }
 
   const xml = await backend.readFile(path);
@@ -186,6 +188,7 @@ async function openFile(path: string): Promise<void> {
     throw new Error(`Не удалось открыть ${path}: ${errorText(err)}`);
   }
   editor.onChange(() => setDirty(tab, true));
+  return tab;
 }
 
 function activate(tab: Tab): void {
@@ -259,12 +262,16 @@ async function saveActive(): Promise<void> {
 
 // --- запуск ---
 
+const mcpPanel = new McpPanel((err) => status(errorText(err), true));
+
 const toolbar = new Toolbar(document.getElementById('toolbar')!, {
   chooseWorkspace,
   newFile: askNewFile,
   save: saveActive,
+  agent: () => mcpPanel.toggle(),
   error: (err) => status(errorText(err), true),
 });
+mcpPanel.attach(toolbar.tool('agent')).catch(() => {});
 
 initSidebarResizer(document.querySelector<HTMLElement>('.sidebar')!, document.getElementById('sidebar-resizer')!, () => {
   // Холст diagram-js кэширует размеры контейнера
@@ -284,6 +291,19 @@ window.addEventListener('focus', () => {
   if (!el.fileList.querySelector('.file-new')) {
     showWorkspace().catch((err) => status(errorText(err), true));
   }
+});
+
+initMcpBridge({
+  tabs: () => [...tabs.values()],
+  active: () => active,
+  open: async (path) => {
+    const tab = await openFile(path);
+    // Агент мог создать файл: обновить список
+    await refreshFiles();
+    return tab;
+  },
+  markDirty: (tab) => setDirty(tab as Tab, true),
+  status: (message) => status(message),
 });
 
 showWorkspace().catch((err) => status(errorText(err), true));

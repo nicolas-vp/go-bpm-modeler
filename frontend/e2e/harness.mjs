@@ -29,7 +29,18 @@ export async function open({ dist, files, index, viewport = { width: 1400, heigh
     ({ files, index }) => {
       window.__files = files;
       window.__opened = [];
-      window.runtime = { BrowserOpenURL: (url) => window.__opened.push(url) };
+      window.__events = {};
+      window.__mcpResolve = {};
+      window.__clipboard = [];
+      window.__mcp = { enabled: false, running: false, url: 'http://127.0.0.1:39190/mcp', token: 'tok1', error: '' };
+      window.runtime = {
+        BrowserOpenURL: (url) => window.__opened.push(url),
+        EventsOn: (name, callback) => {
+          window.__events[name] = callback;
+          return () => {};
+        },
+        ClipboardSetText: async (text) => window.__clipboard.push(text),
+      };
       const list = () =>
         Object.keys(window.__files)
           .sort()
@@ -51,6 +62,18 @@ export async function open({ dist, files, index, viewport = { width: 1400, heigh
             Index: async () => index,
             SetDirty: async () => {},
             Confirm: async () => true,
+            MCPStatus: async () => ({ ...window.__mcp }),
+            SetMCPEnabled: async (enabled) => {
+              Object.assign(window.__mcp, { enabled, running: enabled });
+              return { ...window.__mcp };
+            },
+            RegenerateMCPToken: async () => {
+              window.__mcp.token = 'tok' + (Number(window.__mcp.token.slice(3)) + 1);
+              return { ...window.__mcp };
+            },
+            // Ответ редактора на запрос MCP: тест ждёт его через window.__mcpResolve[id]
+            MCPRespond: async (id, result, error) =>
+              window.__mcpResolve[id]?.({ result: result ? JSON.parse(result) : null, error }),
           },
         },
       };
@@ -117,6 +140,18 @@ export async function open({ dist, files, index, viewport = { width: 1400, heigh
     },
 
     disabled: (tool) => page.locator(`[data-tool="${tool}"]`).isDisabled(),
+
+    /** Запрос MCP-сервера к редактору (событие mcp:request), как его шлёт Go; ответ - { result, error } */
+    mcp: (method, params) =>
+      page.evaluate(
+        ([method, params]) =>
+          new Promise((resolve) => {
+            const id = 't' + Math.random();
+            window.__mcpResolve[id] = resolve;
+            window.__events['mcp:request']({ id, method, params });
+          }),
+        [method, params],
+      ),
 
     async close() {
       check('нет ошибок в консоли', errors.length === 0, errors.join(' | '));

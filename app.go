@@ -16,9 +16,18 @@ import (
 // errNoWorkspace - рабочая папка не выбрана
 var errNoWorkspace = errors.New("рабочая папка не выбрана")
 
+// appVersion - версия моделера в ответе MCP initialize
+const appVersion = "0.1.0"
+
 // settings - настройки, которые переживают перезапуск
 type settings struct {
 	Workspace string `json:"workspace"`
+	// MCPEnabled - встроенный MCP-сервер включён; выключен по умолчанию
+	MCPEnabled bool `json:"mcpEnabled,omitempty"`
+	// MCPPort - порт MCP-сервера на 127.0.0.1; 0 - defaultMCPPort
+	MCPPort int `json:"mcpPort,omitempty"`
+	// MCPToken - секрет, который агент передаёт в Authorization: Bearer
+	MCPToken string `json:"mcpToken,omitempty"`
 }
 
 // App - методы, которые вызывает фронтенд. Все пути файлов - относительно рабочей папки
@@ -29,6 +38,10 @@ type App struct {
 	root string
 	// dirty - во вкладках есть несохранённые изменения; сообщает фронтенд
 	dirty bool
+	// cfg - настройки из settings.json
+	cfg settings
+
+	mcp mcpState
 }
 
 func NewApp() *App {
@@ -37,11 +50,37 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	if s, err := loadSettings(); err == nil && s.Workspace != "" {
+	s, _ := loadSettings()
+	a.mu.Lock()
+	a.cfg = s
+	if s.Workspace != "" {
 		if _, err := workspace.Dir(s.Workspace); err == nil {
 			a.root = s.Workspace
 		}
 	}
+	a.mu.Unlock()
+	if s.MCPEnabled && s.MCPToken != "" {
+		a.startMCP(s)
+	}
+}
+
+func (a *App) shutdown(context.Context) {
+	a.stopMCP()
+}
+
+func (a *App) settings() settings {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	return a.cfg
+}
+
+// updateSettings меняет настройки и записывает settings.json целиком
+func (a *App) updateSettings(change func(*settings)) (settings, error) {
+	a.mu.Lock()
+	change(&a.cfg)
+	s := a.cfg
+	a.mu.Unlock()
+	return s, saveSettings(s)
 }
 
 // Workspace возвращает текущую рабочую папку, "" - не выбрана
@@ -69,7 +108,7 @@ func (a *App) ChooseWorkspace() (string, error) {
 	a.mu.Lock()
 	a.root = dir
 	a.mu.Unlock()
-	if err := saveSettings(settings{Workspace: dir}); err != nil {
+	if _, err := a.updateSettings(func(s *settings) { s.Workspace = dir }); err != nil {
 		runtime.LogWarningf(a.ctx, "настройки не сохранены: %v", err)
 	}
 	return dir, nil
@@ -196,5 +235,6 @@ func saveSettings(s settings) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0o644)
+	// В настройках токен MCP: читать их может только владелец
+	return os.WriteFile(path, data, 0o600)
 }

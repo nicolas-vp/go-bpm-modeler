@@ -1,7 +1,8 @@
 import DmnModeler from 'dmn-js/lib/Modeler';
 
-import { Editor, Services, warningMessages } from '../editor';
+import { Editor, Problem, Services, warningMessages } from '../editor';
 import translate from '../translate';
+import { describeDmn } from './describe';
 import { Issue, lintDmn } from './lint';
 import { DATA_TYPES, drdRestrictions } from './restrictions';
 
@@ -70,6 +71,35 @@ export class DmnEditor implements Editor {
 
   destroy(): void {
     this.modeler.destroy();
+  }
+
+  describe(): unknown {
+    return describeDmn(this.modeler.getDefinitions());
+  }
+
+  problems(): Problem[] {
+    return this.issues;
+  }
+
+  selection(): unknown[] {
+    const view = this.modeler.getActiveView();
+    const decisions = describeDmn(this.modeler.getDefinitions()).elements;
+    // В таблице решения выделено само решение; на схеме DRD - выделенные элементы
+    const ids: string[] =
+      view?.type === 'drd'
+        ? this.modeler.getActiveViewer().get('selection').get().map((e: any) => e.id)
+        : view?.element
+          ? [view.element.id]
+          : [];
+    return decisions.filter((d) => ids.includes(d.id as string));
+  }
+
+  async replace(xml: string): Promise<string[]> {
+    // Сначала разбор отдельно: неудачный importXML очистил бы документ пользователя
+    await this.modeler._moddle.fromXML(xml, 'dmn:Definitions');
+    const { warnings } = await this.modeler.importXML(xml);
+    this.lint();
+    return warningMessages(warnings);
   }
 
   private watchActiveViewer(): void {

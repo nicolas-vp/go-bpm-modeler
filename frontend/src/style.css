@@ -308,6 +308,87 @@ body.resizing {
   overflow-y: auto;
 }
 
+/* Окно «AI-агент» (MCP) */
+.tool.mcp-on {
+  position: relative;
+}
+.tool.mcp-on::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2f8a4c;
+}
+.mcp-panel {
+  position: fixed;
+  z-index: 200;
+  width: 460px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.16);
+}
+.mcp-panel h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.mcp-note,
+.mcp-state {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.mcp-state {
+  color: #2f8a4c;
+}
+.mcp-error {
+  margin: 8px 0 0;
+  color: var(--error);
+}
+.mcp-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.mcp-row {
+  margin-bottom: 10px;
+}
+.mcp-label {
+  margin-bottom: 4px;
+  color: var(--text-muted);
+}
+.mcp-copy {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.mcp-copy code {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: var(--bg-sidebar);
+  font-size: 11.5px;
+  word-break: break-all;
+}
+.mcp-copy-button,
+.mcp-regenerate {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  white-space: nowrap;
+}
+.mcp-copy-button:hover,
+.mcp-regenerate:hover {
+  background: var(--bg-hover);
+}
+
 /* Выпадающие списки dmn-js (hit policy, типы): dmn-js ставит им inline ширину поля, и длинные подписи
    («Priority — не поддерживается go-bpm») переносятся. Ширина - по самой длинной подписи, без переноса */
 .dms-select-options {

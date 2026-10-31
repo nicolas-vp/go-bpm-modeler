@@ -30,13 +30,30 @@ interface AppBindings {
   Index(): Promise<WorkspaceIndex>;
   SetDirty(dirty: boolean): Promise<void>;
   Confirm(title: string, message: string): Promise<boolean>;
+  MCPStatus(): Promise<McpStatus>;
+  SetMCPEnabled(enabled: boolean): Promise<McpStatus>;
+  RegenerateMCPToken(): Promise<McpStatus>;
+  MCPRespond(id: string, result: string, error: string): Promise<void>;
+}
+
+/** Состояние встроенного MCP-сервера (mcp.go) */
+export interface McpStatus {
+  enabled: boolean;
+  running: boolean;
+  url: string;
+  token: string;
+  error: string;
 }
 
 declare global {
   interface Window {
     go?: { main?: { App?: AppBindings } };
     // Рантайм Wails
-    runtime?: { BrowserOpenURL(url: string): void };
+    runtime?: {
+      BrowserOpenURL(url: string): void;
+      EventsOn(name: string, callback: (...data: any[]) => void): () => void;
+      ClipboardSetText(text: string): Promise<boolean>;
+    };
   }
 }
 
@@ -46,6 +63,20 @@ export function openExternal(url: string): void {
     window.runtime.BrowserOpenURL(url);
   } else {
     window.open(url, '_blank', 'noopener');
+  }
+}
+
+/** Подписка на событие из Go (runtime.EventsEmit); вне Wails - ничего */
+export function onEvent(name: string, callback: (...data: any[]) => void): void {
+  window.runtime?.EventsOn(name, callback);
+}
+
+/** Текст в буфер обмена: через Wails - в WebKitGTK navigator.clipboard без разрешения не работает */
+export async function copyText(text: string): Promise<void> {
+  if (window.runtime?.ClipboardSetText) {
+    await window.runtime.ClipboardSetText(text);
+  } else {
+    await navigator.clipboard.writeText(text);
   }
 }
 
@@ -67,4 +98,8 @@ export const backend = {
   index: () => app().Index(),
   setDirty: (dirty: boolean) => app().SetDirty(dirty),
   confirm: (title: string, message: string) => app().Confirm(title, message),
+  mcpStatus: () => app().MCPStatus(),
+  setMcpEnabled: (enabled: boolean) => app().SetMCPEnabled(enabled),
+  regenerateMcpToken: () => app().RegenerateMCPToken(),
+  mcpRespond: (id: string, result: string, error: string) => app().MCPRespond(id, result, error),
 };

@@ -10,6 +10,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
+
+	"github.com/nicolas-vp/go-bpm-modeler/internal/mcp"
 )
 
 //go:embed all:frontend/dist
@@ -20,7 +22,13 @@ var assets embed.FS
 //go:embed build/appicon.png
 var icon []byte
 
+// guide - справочник для AI-агента: что поддерживает go-bpm (инструмент MCP get_modeling_guide)
+//
+//go:embed docs/supported-elements.md
+var guide string
+
 func main() {
+	mcp.Guide = guide
 	app := NewApp()
 
 	// Без меню Edit на macOS не работают Cmd+C/Cmd+V в WebView
@@ -40,6 +48,7 @@ func main() {
 		AssetServer:   &assetserver.Options{Assets: assets},
 		OnStartup:     app.startup,
 		OnBeforeClose: app.beforeClose,
+		OnShutdown:    app.shutdown,
 		Bind:          []any{app},
 		Linux: &linux.Options{
 			Icon: icon,

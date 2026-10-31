@@ -1,7 +1,8 @@
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js-properties-panel';
 
-import { Editor, Services, warningMessages } from '../editor';
+import { Editor, Problem, Services, warningMessages } from '../editor';
+import { describeBpmn, describeElement } from './describe';
 import aiTask from './aiTask';
 import gobpm from './gobpm.json';
 import linting, { lintOptions } from './lint';
@@ -13,6 +14,8 @@ import translate from '../translate';
 export class BpmnEditor implements Editor {
   readonly element: HTMLElement;
   private modeler: any;
+  // Последний результат линтера: bpmn-js-bpmnlint проверяет схему после каждой правки
+  private lintIssues: Problem[] = [];
 
   constructor() {
     this.element = document.createElement('div');
@@ -41,6 +44,11 @@ export class BpmnEditor implements Editor {
       moddleExtensions: { gobpm },
     };
     this.modeler = new BpmnModeler(options);
+    this.modeler.on('linting.completed', ({ issues }: { issues: Record<string, Array<{ message: string; category: string }>> }) => {
+      this.lintIssues = Object.entries(issues).flatMap(([id, list]) =>
+        list.map((issue) => ({ id, level: issue.category === 'error' ? 'error' : 'warn', message: issue.message }) as Problem),
+      );
+    });
   }
 
   async open(xml: string): Promise<string[]> {
@@ -67,5 +75,28 @@ export class BpmnEditor implements Editor {
 
   destroy(): void {
     this.modeler.destroy();
+  }
+
+  describe(): unknown {
+    return describeBpmn(this.modeler);
+  }
+
+  problems(): Problem[] {
+    return this.lintIssues;
+  }
+
+  selection(): unknown[] {
+    return this.modeler.get('selection').get().map(describeElement);
+  }
+
+  async replace(xml: string): Promise<string[]> {
+    // Сначала разбор отдельно: неудачный importXML очистил бы схему пользователя
+    await this.modeler.get('moddle').fromXML(xml, 'bpmn:Definitions');
+    const canvas = this.modeler.get('canvas');
+    const viewbox = canvas.viewbox();
+    const { warnings } = await this.modeler.importXML(xml);
+    // Пользователь остаётся там, где смотрел
+    canvas.viewbox({ x: viewbox.x, y: viewbox.y, width: viewbox.width, height: viewbox.height });
+    return warningMessages(warnings);
   }
 }

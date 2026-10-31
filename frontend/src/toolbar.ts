@@ -2,6 +2,7 @@
 // активного представления, поэтому кнопки сами становятся недоступны там, где действия нет (таблица решений DMN)
 import {
   BookOpen,
+  Bot,
   ClipboardPaste,
   Copy,
   createElement,
@@ -28,6 +29,8 @@ export interface ToolbarHandlers {
   chooseWorkspace(): Promise<void> | void;
   newFile(kind: Kind): Promise<void> | void;
   save(): Promise<void> | void;
+  /** Кнопка «AI-агент»: окно MCP-сервера */
+  agent(): Promise<void> | void;
   error(err: unknown): void;
 }
 
@@ -148,7 +151,10 @@ export class Toolbar {
       ),
       this.group(this.button('color', Palette, 'Цвет элемента', () => this.toggleColorMenu())),
       this.colorMenu,
-      this.group(this.button('docs', BookOpen, DOCS_URL, () => openExternal(DOCS_URL), 'Документация')),
+      this.group(
+        this.button('agent', Bot, 'AI-агент: MCP-сервер для Claude Code, Cursor и других', call(handlers.agent), 'AI-агент'),
+        this.button('docs', BookOpen, DOCS_URL, () => openExternal(DOCS_URL), 'Документация'),
+      ),
     );
     // Последняя группа - справа
     root.lastElementChild!.classList.add('tool-group-end');
@@ -168,6 +174,11 @@ export class Toolbar {
       });
     }
     this.attach();
+  }
+
+  /** Кнопка инструмента по id - например, чтобы прикрепить к ней окно */
+  tool(id: string): HTMLButtonElement {
+    return this.buttons.get(id)!;
   }
 
   setSaveEnabled(enabled: boolean): void {
